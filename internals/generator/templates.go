@@ -9,6 +9,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+type BeanGenerate struct {
+	a        *ast.FuncDecl
+	injector *ast.Node
+}
+
 const GenerateBeanInject = `
 package main
 

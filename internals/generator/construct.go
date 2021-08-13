@@ -38,7 +38,13 @@ func GenerateBeanRegister(name string, a ast.Decl) ast.FuncDecl {
 				Rhs: []ast.Expr{&ast.UnaryExpr{
 					OpPos: 0,
 					Op:    token.AND,
-					X:     nil,
+					X: &ast.CompositeLit{
+						Type:       nil,
+						Lbrace:     0,
+						Elts:       []ast.Expr{},
+						Rbrace:     0,
+						Incomplete: false,
+					},
 				}},
 			}, &ast.ExprStmt{}},
 			Rbrace: 0,
