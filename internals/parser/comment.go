@@ -84,6 +84,28 @@ func (c *Collector) Process() {
 	}
 }
 
+func (c *Collector) parseFuncDecl(fun *ast.FuncDecl) {
+	fs := fun.Doc
+	if fs == nil {
+		return
+	}
+	for _, ci := range fs.List {
+		comment := ci.Text
+		annotaionRaws := GetAnnotationBody(comment)
+		for _, anno := range annotaionRaws {
+			name := GetAnnotationName(anno)
+			payload := GetAnnotationPayload(anno)
+			annotation := definition.NewAnnotationStruct(name, payload)
+			c.pushHolder(&AnnotationHolder{
+				Annotation: annotation,
+				RelateNode: fun,
+				RootNode:   fun,
+			})
+		}
+	}
+
+}
+
 //parse gen (import and type struct) type
 func (c *Collector) parseGenDecl(gen *ast.GenDecl) {
 
