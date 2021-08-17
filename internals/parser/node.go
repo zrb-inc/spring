@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/parser"
 	"go/token"
 	"io"
@@ -70,11 +71,12 @@ func (b *Builder) Travel(path string, node *Node) (*Node, error) {
 		return nil, err
 	}
 	n := &Node{
-		Parent:   node,
-		Type:     Dictionary,
-		Ast:      nil,
-		Path:     path,
-		Children: []*Node{},
+		Parent:    node,
+		Type:      Dictionary,
+		Ast:       nil,
+		Path:      path,
+		Children:  []*Node{},
+		Collector: nil,
 	}
 	for _, f := range files {
 		if f.IsDir() {
@@ -91,11 +93,12 @@ func (b *Builder) Travel(path string, node *Node) (*Node, error) {
 				return nil, err
 			}
 			fn := &Node{
-				Parent:   n,
-				Type:     0,
-				Ast:      ast,
-				Path:     filepath.Join(path, f.Name()),
-				Children: nil,
+				Parent:    n,
+				Type:      Entry,
+				Ast:       ast,
+				Path:      filepath.Join(path, f.Name()),
+				Children:  nil,
+				Collector: NewCollector(ast),
 			}
 			n.PushChild(fn)
 		}
@@ -145,6 +148,8 @@ type Node struct {
 	Path string
 
 	Children []*Node
+
+	Collector *Collector
 }
 
 func (n *Node) String() string {
@@ -153,9 +158,19 @@ func (n *Node) String() string {
 
 func (n *Node) format(level int) string {
 	buf := bytes.NewBuffer([]byte{})
-	indentFprintf(buf, "Type: %s\n", level, n.Type)
-	indentFprintf(buf, "Path: %s\n", level, n.Path)
-	indentFprintf(buf, "Ast: %+v\n", level, n.Ast)
+	//indentFprintf(buf, "Type: %s\n", level, n.Type)
+	//indentFprintf(buf, "Path: %s\n", level, n.Path)
+	//indentFprintf(buf, "Ast: %+v\n", level, n.Ast)
+	if n.Collector != nil {
+		indentFprintf(buf, "Annotations: %+v\n", level, n.Collector.GetAllAnnotationsString())
+	}
+
+	if n.Ast != nil {
+		b := bytes.NewBufferString("")
+		format.Node(b, token.NewFileSet(), n.Ast)
+		s, _ := ioutil.ReadAll(b)
+		indentFprintf(buf, "Source code ============\n%s", level, s)
+	}
 
 	if len(n.Children) > 0 {
 		for idx, cn := range n.Children {
