@@ -1,4 +1,4 @@
-package generator
+package parser
 
 import (
 	"bytes"
@@ -9,23 +9,21 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-
-	"github.com/zrb-inc/spring/internals/parser"
 )
 
 // AstWriter write the parsed ast tree to file
 type AstWriter interface {
-	Write(n *parser.Node) error
+	Write(n *Node) error
 }
 
 type CompiledAstWriter struct{}
 
-func (c *CompiledAstWriter) Write(n *parser.Node) error {
-	if n.Type != parser.Entry {
+func (c *CompiledAstWriter) Write(n *Node) error {
+	if n.Type != Entry {
 		return nil
 	}
 	if n.Ast == nil {
-		return errors.New("parser.Node.Ast empty")
+		return errors.New("Node.Ast empty")
 	}
 	b := bytes.NewBuffer([]byte{})
 
@@ -40,7 +38,7 @@ func (c *CompiledAstWriter) Write(n *parser.Node) error {
 	} else {
 		return nil
 	}
-	newPathname := fmt.Sprintf("%s_spring_generated.go", pathnameWithoutShuffix)
+	newPathname := fmt.Sprintf("%s_%s", pathnameWithoutShuffix, SHUFFIX_GENERATOR_FILE)
 
 	ioutil.WriteFile(newPathname, b.Bytes(), os.FileMode(0644))
 

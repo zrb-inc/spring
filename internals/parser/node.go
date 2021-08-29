@@ -86,6 +86,10 @@ func (b *Builder) Travel(path string, node *Node) (*Node, error) {
 			}
 			n.PushChild(child)
 		}
+		if strings.Contains(f.Name(), SHUFFIX_GENERATOR_FILE) {
+			continue
+		}
+
 		if strings.Contains(f.Name(), ".go") {
 			//TODO ast implement
 			ast, err := b.BuildAst(filepath.Join(path, f.Name()))
@@ -131,6 +135,7 @@ func (fs *Fs) ReadDir(dir string) ([]os.FileInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 	return f.Readdir(0)
 }
 
