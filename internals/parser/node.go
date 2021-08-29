@@ -159,10 +159,10 @@ func (n *Node) String() string {
 func (n *Node) format(level int) string {
 	buf := bytes.NewBuffer([]byte{})
 	//indentFprintf(buf, "Type: %s\n", level, n.Type)
-	//indentFprintf(buf, "Path: %s\n", level, n.Path)
+	indentFprintf(buf, "Path: %s\n", level, n.GetFullPathName())
 	//indentFprintf(buf, "Ast: %+v\n", level, n.Ast)
 	if n.Collector != nil {
-		indentFprintf(buf, "Annotations: %+v\n", level, n.Collector.GetAllAnnotationsString())
+		//indentFprintf(buf, "Annotations: %+v\n", level, n.Collector.GetAllAnnotationsString())
 	}
 
 	if n.Ast != nil {
@@ -181,11 +181,32 @@ func (n *Node) format(level int) string {
 	return buf.String()
 }
 
+func (n *Node) GetFullPathName() string {
+	if n.Parent == nil {
+		return "."
+	}
+	path := fmt.Sprintf("%s/%s", n.Parent.GetFullPathName(), n.Path)
+	return path
+}
+
 func indentFprintf(w io.Writer, format string, level int, args ...interface{}) {
 	for i := 0; i < level; i++ {
 		fmt.Fprint(w, "  ")
 	}
 	fmt.Fprintf(w, format, args...)
+}
+
+func (n *Node) Apply(fn func(*Node) error) error {
+	if n == nil {
+		return nil
+	}
+	fn(n)
+	if len(n.Children) > 0 {
+		for _, cn := range n.Children {
+			fn(cn)
+		}
+	}
+	return nil
 }
 
 func (n *Node) PushChild(node *Node) {

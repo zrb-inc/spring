@@ -30,7 +30,7 @@ func Generate%s() {
             return &%s{}, nil
         },
     }
-    runtime.CompileApp.PushDefinition("%s", i)
+    spruntime.CompileApp.PushDefinition("%s", i)
 }
 `
 
