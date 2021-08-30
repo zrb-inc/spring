@@ -155,6 +155,9 @@ type Node struct {
 	Children []*Node
 
 	Collector *Collector
+
+	//if this Node need to write code
+	NeedWrite bool
 }
 
 func (n *Node) String() string {

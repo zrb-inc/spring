@@ -80,6 +80,7 @@ func (c *Collector) Process() {
 		case *ast.GenDecl:
 			c.parseGenDecl(t)
 		case *ast.FuncDecl:
+			c.parseFuncDecl(t)
 		}
 	}
 }

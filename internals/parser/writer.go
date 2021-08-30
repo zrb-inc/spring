@@ -19,6 +19,9 @@ type AstWriter interface {
 type CompiledAstWriter struct{}
 
 func (c *CompiledAstWriter) Write(n *Node) error {
+	if !n.NeedWrite {
+		return nil
+	}
 	if n.Type != Entry {
 		return nil
 	}
